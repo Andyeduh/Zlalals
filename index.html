@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Áudio com Anúncios</title>
+
+<!-- SEU CÓDIGO ADSENSE GLOBAL -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4441083997807173"
+crossorigin="anonymous"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .conteudo {
+        background: white;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    button {
+        padding: 12px 20px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+        background: #007bff;
+        color: white;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        opacity: 0.85;
+        transform: scale(1.03);
+    }
+
+    .ads {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px 0;
+        background: #fff;
+        padding: 10px;
+        text-align: center;
+        border-radius: 8px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- ANÚNCIO SUPERIOR -->
+<div class="ads">
+    <!-- BLOCO DE ANÚNCIO ADSENSE -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-4441083997807173"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+
+<div class="conteudo">
+    <h2>Desbloqueei o site</h2>
+
+    <button onclick="document.getElementById('meuAudio').play()">
+        Clique aqui
+    </button>
+
+    <audio id="meuAudio">
+        <source src="https://files.catbox.moe/qhcavs.mp3" type="audio/mpeg">
+    </audio>
+</div>
+
+<!-- ANÚNCIO INFERIOR -->
+<div class="ads">
+    <!-- BLOCO DE ANÚNCIO ADSENSE -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-4441083997807173"
+         data-ad-slot="9876543210"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+
+</body>
+</html>
