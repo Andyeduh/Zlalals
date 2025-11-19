@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel Admin - Reconhecimento Facial</title>
+<style>
+body { font-family: Arial, sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; background: linear-gradient(135deg, #f6d365, #fda085);}
+#camera { border:3px solid #007bff; border-radius:15px; }
+#status { margin-top:15px; font-size:18px; font-weight:bold; }
+#conteudo { display:none; margin-top:20px; text-align:center; }
+button { margin:5px; padding:10px 15px; border:none; border-radius:10px; background:#007bff; color:#fff; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h2>Painel Administrativo</h2>
+<video id="camera" width="400" height="300" autoplay muted></video>
+<div id="status">Aguardando reconhecimento facial...</div>
+
+<div id="conteudo">
+    <h3>Bem-vindo, Administrador</h3>
+    <button onclick="listarClientes()">Listar Clientes</button>
+    <div id="lista"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+<!-- face-api.js -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAlgtGJTYExN8KlvKkxUJ_7YeVAuoE5waA",
+  authDomain: "moraissite.firebaseapp.com",
+  databaseURL: "https://moraissite-default-rtdb.firebaseio.com",
+  projectId: "moraissite",
+  storageBucket: "moraissite.firebasestorage.app",
+  messagingSenderId: "605073978449",
+  appId: "1:605073978449:web:8894d1400b36ad68cdb470",
+  measurementId: "G-TLBS4L73N6"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const video = document.getElementById("camera");
+const status = document.getElementById("status");
+const conteudo = document.getElementById("conteudo");
+let labeledDescriptors = [];
+
+// Carregar modelos face-api
+async function carregarModelos(){
+    await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+    await faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+    await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/');
+}
+
+// Carregar descritores faciais do Firebase
+async function carregarAdminDescriptors(){
+    const snapshot = await db.collection("admin_faces").get();
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const floatArray = new Float32Array(data.descriptor);
+        labeledDescriptors.push(new faceapi.LabeledFaceDescriptors(data.nome, [floatArray]));
+    });
+}
+
+// Iniciar câmera
+function startCamera(){
+    navigator.mediaDevices.getUserMedia({video:true})
+    .then(stream => { video.srcObject = stream; recognizeFace(); })
+    .catch(err => status.innerText="Erro ao acessar câmera: "+err);
+}
+
+// Reconhecimento facial
+function recognizeFace(){
+    const faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
+    const interval = setInterval(async ()=>{
+        const detections = await faceapi.detectAllFaces(video,new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+        if(detections.length>0){
+            const bestMatch = faceMatcher.findBestMatch(detections[0].descriptor);
+            if(bestMatch.label!=="unknown"){
+                clearInterval(interval);
+                status.innerText = `Bem-vindo, ${bestMatch.label}`;
+                conteudo.style.display = "block";
+            }
+        }
+    },500);
+}
+
+// Listar clientes
+async function listarClientes(){
+    const snapshot = await db.collection("clientes").get();
+    let lista = "<ul>";
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        lista += `<li>${doc.id} - ${data.nome} - ${data.telefone}</li>`;
+    });
+    lista += "</ul>";
+    document.getElementById("lista").innerHTML = lista;
+}
+
+// Inicialização
+(async function(){
+    await carregarModelos();
+    await carregarAdminDescriptors();
+    startCamera();
+})();
+</script>
+</body>
+</html>
